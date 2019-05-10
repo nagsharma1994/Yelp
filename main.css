@@ -1,0 +1,71 @@
+.bg-color {
+    background: #3F9271
+}
+
+.yelpImage {
+    width: 1.75rem;
+}
+
+.img_logo {
+    width: 1rem;
+}
+
+.spaceBetweenDivs {
+    margin-left: 3rem;
+}
+
+.dropdown:hover.dropdown-menu {
+    display: block;
+}
+
+.spaceforSearch {
+    justify-items: end;
+}
+
+.listFont {
+    font-size: 1.75rem;
+}
+
+.iconSpace {
+    padding-right: .5rem;
+}
+
+.search_burger {
+    display: flex;
+    align-items: center;
+}
+
+.list-group-item-linkable:hover {
+    cursor: pointer;
+}
+
+#listGroup_more {
+    display: none;
+}
+
+.icon_separator {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.fa-chevron-right {
+    color: grey;
+}
+
+.card {
+    padding: 1rem 0 0 1rem;
+    flex-direction: row;
+    align-items: center;
+}
+
+.card-img-left {
+    width: 120px;
+    height: 120px;
+}
+
+.title_distance {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
