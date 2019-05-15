@@ -184,6 +184,8 @@ function createBusinessListPage(businessId) {
 function createBusinessDetails(businessData) {
     const business = businessData.businessDetails;
     const reviews = businessData.reviewDetails;
+    const fullreviews = businessData.reviewDetails.reviews;
+    console.log(fullreviews);
 
     document.querySelector('#listGroup').style.display = 'none';
     document.querySelector('#listGroup_more').style.display = 'none';
@@ -191,7 +193,7 @@ function createBusinessDetails(businessData) {
     document.querySelector('#business_list').style.display = 'none';
 
     let businessDetailsHtml = document.querySelector('#business_details').innerHTML;
-    //console.log(business.name);
+    //console.log(reviews);
     let photosDiv = '';
     business.photos.forEach(function (photo) {
         let photoDiv = '<img src="' + photo + '" class="card-img-bottom img-thumbnail"/>';
@@ -200,11 +202,47 @@ function createBusinessDetails(businessData) {
 
     let stars = getStars(business.rating);
 
-    let businessDetailsDiv = '<div class="textsize"><h5 class="card-title ">' + business.name + '</h5><div>' + business.categories[0].title + '</div><div><span>' + business.hours[0].open[0].start + ' - ' + business.hours[0].open[0].end + '</span></div><div ><span>' + 'contribution' + '</span><span>' + 'call' + '</span> <span>' + 'Direction' + ' </span> <span>' + 'website' + '</span></div><div>' + stars + '</div><div>' + photosDiv + '</div></div>';
+    let reviewDetails = createReviewDetails(fullreviews);
+
+    let businessDetailsDiv = '<div class="textsize"><h5 class="card-title ">' + business.name + '</h5><div>' + business.categories[0].title + '</div><div><span>' + business.hours[0].open[0].start + ' - ' + business.hours[0].open[0].end + '</span></div><div ><span>' + 'contribution' + '</span><span>' + 'call' + '</span> <span>' + 'Direction' + ' </span> <span>' + 'website' + '</span></div><div>' + stars + '</div><div>' + photosDiv + '</div></div><div>' + reviewDetails + '<br /></div>';
+    // console.log(reviews.reviews[0].text);
 
     let reviewsDiv = '';
 
     document.querySelector('#business_details').innerHTML = businessDetailsDiv + reviewsDiv;
+}
+
+function createReviewDetails(reviews) {
+    let reviewDetailsCards = ''
+
+    for (var i = 0; i < reviews.length; i++) {
+        let reviewDetailsCard = '';
+        let reviewDetailsTextDiv = '';
+        let reviewDetailsImageDiv = '';
+        let reviewUserNameDiv = '';
+        let starRatingDiv = '';
+        let dateDiv = '';
+
+        let starRating = getStars(reviews[i].rating);
+
+        reviewDetailsImageDiv = '<img class = "card-img-left img-thumbnail" src = "' +
+            reviews[i].user.image_url + '"></img>';
+
+        reviewUserNameDiv = '<div class="card-body"><span class="title_distance"><h5 class="card-title" >' + reviews[i].user.name + '</h5></span>';
+
+        starRatingDiv = '<span class="star-rating">' + starRating + '</span>';
+
+        dateDiv = '<span class="card-text">' + reviews[i].time_created + '</span>';
+        reviewDetailsTextDiv = '<div><h6>' + reviews[i].text + '</h6></div></div>';
+
+        reviewDetailsCard = '<div class="card">' + reviewDetailsImageDiv +
+            reviewUserNameDiv + starRatingDiv + dateDiv + reviewDetailsTextDiv +
+            '</div>';
+
+        reviewDetailsCards = reviewDetailsCards + reviewDetailsCard;
+    }
+
+    return reviewDetailsCards;
 }
 
 function getStars(rating) {
@@ -224,7 +262,7 @@ function getStars(rating) {
     }
     // Fill the empty stars
     for (let i = (5 - rating); i >= 1; i--) {
-        starRating.push('<i class="fas fa-star-half-alt fa-xs" aria-hidden="true" style="color: red;"></i>&nbsp;');
+        starRating.push('<i class="far fa-star fa-xs" aria-hidden="true" style="color: red;"></i>&nbsp;');
     }
 
     return starRating.join('');
