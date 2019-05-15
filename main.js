@@ -36,7 +36,7 @@ document.querySelector('.switch').addEventListener('click', function (event) {
 //To get the details of the business
 document.querySelector('#business_list').addEventListener('click', function (event) {
     const businessId = event.target.parentElement.getAttribute('businessId');
-    createBusinessListById(businessId);
+    createBusinessListPage(businessId);
 });
 
 
@@ -119,15 +119,18 @@ function createBusinessList(businesses) {
     businesses.forEach(function (business) {
         const distance = Math.round(business.distance / 1000);
         const location = business.location;
+        const name = business.name;
         let price = '';
         if (business.price) {
             price = business.price;
         }
+        let starRating = getStars(business.rating);
+
         let card = '<div class="card" businessId ="' + business.id + '">' +
             '<img class="card-img-left img-thumbnail" src="' + business.image_url + '" alt="Card image cap">' +
-            '<div class="card-body"><span class="title_distance"><h5 class="card-title">' + business.name + '</h5><h6>' + distance + ' km</h6></span>' +
-            '<h6 class="card-text">' + business.review_count +
-            ' posts</h6><div businessId ="' + business.id + '"><h6>' + price + ' ' + location.country +
+            '<div class="card-body"><span class="title_distance"><h5 class="card-title" >' + name + '</h5><h6>' + distance + ' km</h6></span><span class="star-rating">' + starRating + '</span>' +
+            '<span class="card-text">' + business.review_count +
+            ' posts</span><div businessId ="' + business.id + '"><h6>' + price + ' ' + location.country +
             '</h6></div><div businessId ="' + business.id + '"><h6>' + location.address1 + ' ' + location.city + '</h6></div></div></div>';
 
         mainCard = mainCard + card;
@@ -135,12 +138,16 @@ function createBusinessList(businesses) {
 
     businessListHTML = businessListHTML + mainCard;
     document.querySelector('#business_list').innerHTML = businessListHTML;
+
 }
 
-function createBusinessListById(businessId) {
+function createBusinessListPage(businessId) {
     if (businessId !== null) {
-        const businessDetailsByIDUrl = 'https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/' + businessId
-        fetch(businessDetailsByIDUrl, {
+        const businessDetailsByIDUrl = 'https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/' + businessId;
+
+        const businessReviewsByIDUrl = 'https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/' + businessId + '/reviews';
+
+        const apiRequest1 = fetch(businessDetailsByIDUrl, {
             method: 'GET', // or 'PUT' // data can be `string` or {object}!
             headers: {
                 'Authorization': authorizationKey,
@@ -148,14 +155,36 @@ function createBusinessListById(businessId) {
             }
         }).then(function (response) {
             return response.json();
-        }).then(function (data) {
-            console.log(data);
-            createBusinessDetails(data);
         });
+
+        const apiRequest2 = fetch(businessReviewsByIDUrl, {
+            method: 'GET', // or 'PUT' // data can be `string` or {object}!
+            headers: {
+                'Authorization': authorizationKey,
+                'Access-Control-Allow-Origin': '*'
+            }
+        }).then(function (response) {
+            return response.json();
+        });
+        let combinedData = {
+            "businessDetails": {},
+            "reviewDetails": {}
+        };
+
+        Promise.all([apiRequest1, apiRequest2]).then(function (values) {
+            combinedData["businessDetails"] = values[0];
+            combinedData["reviewDetails"] = values[1];
+            console.log(combinedData);
+            createBusinessDetails(combinedData);
+        });
+
     }
 }
 
-function createBusinessDetails(business) {
+function createBusinessDetails(businessData) {
+    const business = businessData.businessDetails;
+    const reviews = businessData.reviewDetails;
+
     document.querySelector('#listGroup').style.display = 'none';
     document.querySelector('#listGroup_more').style.display = 'none';
     document.querySelector('.switch').style.display = 'none';
@@ -169,28 +198,35 @@ function createBusinessDetails(business) {
         photosDiv = photosDiv + photoDiv;
     });
 
-    let name = '<div class="textsize"><h5 class="card-title ">' + business.name + '</h5><div>' + business.categories[0].title + '</div><div><span>' + business.hours[0].open[0].start + ' - ' + business.hours[0].open[0].end + '</span></div><div><span>' + 'contribution' + '</span>' + 'call' + '<span>' + 'Direction' + ' </span>' + 'website' + '<span></span><span></span></div><div>' + photosDiv + '</div></div>';
+    let stars = getStars(business.rating);
 
-    document.querySelector('#business_details').innerHTML = name;
+    let businessDetailsDiv = '<div class="textsize"><h5 class="card-title ">' + business.name + '</h5><div>' + business.categories[0].title + '</div><div><span>' + business.hours[0].open[0].start + ' - ' + business.hours[0].open[0].end + '</span></div><div ><span>' + 'contribution' + '</span><span>' + 'call' + '</span> <span>' + 'Direction' + ' </span> <span>' + 'website' + '</span></div><div>' + stars + '</div><div>' + photosDiv + '</div></div>';
+
+    let reviewsDiv = '';
+
+    document.querySelector('#business_details').innerHTML = businessDetailsDiv + reviewsDiv;
 }
 
-// function getStars(rating) {
+function getStars(rating) {
 
-//   // Round to nearest half
-//   rating = Math.round(rating * 2) / 2;
-//   let output = [];
+    // Round to nearest half 
+    rating = Math.round(rating * 2) / 2;
+    let starRating = [];
 
-//   // Append all the filled whole stars
-//   for (var i = rating; i >= 1; i--)
-//     output.push('<i class="fa fa-star" aria-hidden="true" style="color: gold;"></i>&nbsp;');
+    // Append all the filled whole stars
+    for (var i = rating; i >= 1; i--) {
+        starRating.push('<i class="fas fa-star fa-xs" aria-hidden="true" style="color: red;"></i>&nbsp;');
+    }
 
-//   // If there is a half a star, append it
-//   if (i == .5) output.push('<i class="fa fa-star-half-o" aria-hidden="true" style="color: gold;"></i>&nbsp;');
+    // If there is a half a star, append it
+    if (i == .5) {
+        starRating.push('<i class="fas fa-star-half-alt fa-xs" aria-hidden="true" style="color: red;"></i>&nbsp;');
+    }
+    // Fill the empty stars
+    for (let i = (5 - rating); i >= 1; i--) {
+        starRating.push('<i class="fas fa-star-half-alt fa-xs" aria-hidden="true" style="color: red;"></i>&nbsp;');
+    }
 
-//   // Fill the empty stars
-//   for (let i = (5 - rating); i >= 1; i--)
-//     output.push('<i class="fa fa-star-o" aria-hidden="true" style="color: gold;"></i>&nbsp;');
+    return starRating.join('');
 
-//   return output.join('');
-
-// }
+}
