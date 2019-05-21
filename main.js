@@ -39,6 +39,13 @@ document.querySelector('#business_list').addEventListener('click', function (eve
     createBusinessListPage(businessId);
 });
 
+document.querySelector('#submit').addEventListener('click', function (event) {
+    var searchResult = document.getElementById("searchText").value;
+    console.log(searchResult);
+    getBusinesses(searchResult);
+})
+
+//getBusinesses(category)
 
 function getCategories() {
     const categories_url = 'https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/categories';
@@ -185,7 +192,7 @@ function createBusinessDetails(businessData) {
     const business = businessData.businessDetails;
     const reviews = businessData.reviewDetails;
     const fullreviews = businessData.reviewDetails.reviews;
-    console.log(fullreviews);
+    console.log(businessData);
 
     document.querySelector('#listGroup').style.display = 'none';
     document.querySelector('#listGroup_more').style.display = 'none';
@@ -268,3 +275,116 @@ function getStars(rating) {
     return starRating.join('');
 
 }
+let autoCompleteUrl = "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/autocomplete";
+
+let input = document.querySelector('#searchText');
+input.addEventListener('keyup', autoComplete);
+
+function autoComplete() {
+    let autoComplete = autoCompleteUrl + '?text=' + input.value;
+
+    fetch(autoComplete, {
+        method: 'GET', // or 'PUT' // data can be `string` or {object}!
+        headers: {
+            'Authorization': authorizationKey,
+            'Access-Control-Allow-Origin': '*'
+        }
+    }).then(function (response) {
+        return response.json();
+    }).then(function (data) {
+        console.log(data.categories);
+        appendSearch(data.categories);
+    })
+}
+
+function appendSearch(search) {
+    document.querySelector('#listGroup_more').style.display = 'none';
+    document.querySelector('.switch').style.display = 'none';
+    var dataList = document.querySelector('#search_list');
+    dataList.innerHTML = '';
+    for (var i = 0; i < search.length; i++) {
+        var option = document.createElement('option');
+        option.setAttribute('value', search[i].title);
+        option.text = search[i].title;
+        dataList.appendChild(option);
+    }
+}
+
+
+
+
+
+
+
+// let userName = ''
+// let email = ''
+
+// function logIn() {
+//     var provider = new firebase.auth.GoogleAuthProvider();
+//     firebase
+//         .auth()
+//         .signInWithPopup(provider)
+//         .then(function (result) {
+//             // The signed-in user info.
+//             var token = result.credential.accessToken;
+//             var user = result.user;
+//             userName = user.displayName
+//             email = user.email
+//             console.log('Logged in successfully')
+//             console.log(userName)
+//             console.log(email)
+//             console.log(user)
+//             getPost()
+//         }).catch(function (error) {
+//             // Handle Errors here.
+//             var errorCode = error.code;
+//             var errorMessage = error.message;
+//             console.log(errorCode, errorMessage)
+//         });
+// }
+
+// var database = firebase.database();
+
+// function writeNewPost() {
+
+//     let message = document.getElementById('message').value
+//     console.log(message)
+
+//     // A post entry.
+//     var postData = {
+//         author: userName,
+//         body: message,
+//         date: new Date().toISOString()
+//     };
+
+//     // Get a key for a new Post.
+//     var newPostKey = firebase.database().ref().child('posts').push().key;
+
+//     // Write the new post's data simultaneously in the posts list and the user's post list.
+//     var updates = {};
+//     updates['/posts/' + newPostKey] = postData;
+//     // updates['/user-posts/' + newPostKey] = postData;
+
+//     return firebase.database().ref().update(updates);
+// }
+
+// function getPost() {
+//     let chatBox = document.getElementById('posts')
+//     firebase.database().ref('posts/').on('value', function (result) {
+//         console.log(result.val())
+//         let allPost = result.val();
+//         let template = '';
+//         for (key in allPost) {
+//             console.log(allPost[key].author)
+//             let author = allPost[key].author
+//             let message = allPost[key].body
+//             let date = allPost[key].date
+//             template += `<div>
+//                             <p>${author}</p>
+//                             <p>${message}</p>
+//                             <p>${date}</p>
+//                         </div>`
+//         }
+//         chatBox.innerHTML = template
+//     });
+// }

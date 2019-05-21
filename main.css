@@ -30,7 +30,7 @@
     padding-right: .5rem;
 }
 
-.search_burger {
+#search_burger {
     display: flex;
     align-items: center;
 }
@@ -149,4 +149,12 @@
 
 .star-rating {
     font-size: 20px;
+}
+
+.inputbox {
+    width: 6rem;
+}
+
+#submit {
+    margin-left: 1rem;
 }
