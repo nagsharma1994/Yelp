@@ -158,3 +158,16 @@
 #submit {
     margin-left: 1rem;
 }
+
+.maps {
+    width: 100%;
+    height: 500px;
+}
+
+#addReview {
+    margin: 1rem;
+}
+
+.card-subtitle {
+    margin: 0.5rem;
+}

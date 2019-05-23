@@ -52,7 +52,7 @@
     </div>
   </nav>
 
-  <div class="switch">
+  <div id="maptoggle" class="switch">
     <input type="radio" class="switch-input" name="view" value="list" id="list" checked />
     <label for="list" value="list" class="switch-label switch-label-off">List</label>
     <input type="radio" class="switch-input" name="view" value="map" id="map" />
@@ -85,7 +85,27 @@
   </div>
 
   <div id="business_list" class="list-group"></div>
-  <div id="business_details" class="list-group"></div>
+  <div>
+    <span id="maps_div">
+      <iframe class="maps" src="https://www.google.com/maps/d/u/0/embed?mid=1J4WPeM0TksnTAyHW3zfgqiWqHJkzZpdM"
+        width="340" height="280"></iframe>
+    </span>
+  </div>
+  <div id="business_details" class="list-group">
+
+  </div>
+  <div id="addReview" class="card">
+    <div class="card-body">
+      <div class="card-subtitle">
+        <input type=text class="form-control" id="rating" placeholder="Rating" />
+      </div>
+      <div class="card-subtitle">
+        <textarea class="form-control" id="review" placeholder="Please write a review"></textarea>
+      </div>
+      <button value="review" class="btn btn-info" onclick="writeNewPost()">Add a Review</button>
+    </div>
+  </div>
+
 
   <!-- <form class="form-inline my-2 my-lg-0">
     <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" />
@@ -110,7 +130,7 @@
   </script>
 
   <!-- The core Firebase JS SDK is always required and must be listed first -->
-  <script src="https://www.gstatic.com/firebasejs/6.0.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.0.2/firebase.js"></script>
 
   <!-- TODO: Add SDKs for Firebase products that you want to use
      https://firebase.google.com/docs/web/setup#config-web-app -->

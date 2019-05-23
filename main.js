@@ -2,6 +2,8 @@
 let categories = [];
 const authorizationKey = 'Bearer txLSVZQYCrubCoAK8CW9MatFEfpDmITr-dJ1MWsMYC86lfLrJMIWe17nmJAB8LkoR_90dSNDHbrE7HrEs8E2K1JHkFicoBZ5DAiJrlr5TFARWJuGMKzlF7I8tRrTXHYx';
 
+document.querySelector('#maps_div').style.display = 'none';
+document.querySelector('#addReview').style.display = 'none';
 if (window.localStorage.getItem('categories') === null) {
     getCategories();
 } else {
@@ -30,7 +32,14 @@ document.querySelector('#listGroup_more').addEventListener('click', function (ev
 
 //do something when switch is clicked
 document.querySelector('.switch').addEventListener('click', function (event) {
-    console.log(event.target.value);
+    if (event.target.value === 'map') {
+        document.querySelector('#business_list').style.display = 'none';
+        document.querySelector('#maps_div').style.display = 'flex';
+    } else {
+        document.querySelector('#business_list').style.display = 'block';
+        document.querySelector('#maps_div').style.display = 'none';
+    }
+
 });
 
 //To get the details of the business
@@ -43,7 +52,8 @@ document.querySelector('#submit').addEventListener('click', function (event) {
     var searchResult = document.getElementById("searchText").value;
     console.log(searchResult);
     getBusinesses(searchResult);
-})
+});
+
 
 //getBusinesses(category)
 
@@ -198,6 +208,7 @@ function createBusinessDetails(businessData) {
     document.querySelector('#listGroup_more').style.display = 'none';
     document.querySelector('.switch').style.display = 'none';
     document.querySelector('#business_list').style.display = 'none';
+    document.querySelector('#addReview').style.display = 'block';
 
     let businessDetailsHtml = document.querySelector('#business_details').innerHTML;
     //console.log(reviews);
@@ -311,80 +322,77 @@ function appendSearch(search) {
 }
 
 
+let userName = ''
+let email = ''
 
+function logIn() {
+    var provider = new firebase.auth.GoogleAuthProvider();
+    firebase
+        .auth()
+        .signInWithPopup(provider)
+        .then(function (result) {
+            // The signed-in user info.
+            var token = result.credential.accessToken;
+            var user = result.user;
+            userName = user.displayName
+            email = user.email
+            console.log('Logged in successfully')
+            console.log(userName)
+            console.log(email)
+            console.log(user)
+            getPost()
+        }).catch(function (error) {
+            // Handle Errors here.
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            console.log(errorCode, errorMessage)
+        });
+}
 
+var database = firebase.database();
 
+function writeNewPost() {
 
+    let rating = document.getElementById('rating').value;
+    let review = document.getElementById('review').value;
 
-// let userName = ''
-// let email = ''
+    // A post entry.
+    var postData = {
+        rating: rating,
+        text: review,
+        time_created: new Date().toISOString(),
+        url: 'https://cdn.pixabay.com/photo/2016/12/07/17/00/contact-1889865_960_720.png'
+    };
 
-// function logIn() {
-//     var provider = new firebase.auth.GoogleAuthProvider();
-//     firebase
-//         .auth()
-//         .signInWithPopup(provider)
-//         .then(function (result) {
-//             // The signed-in user info.
-//             var token = result.credential.accessToken;
-//             var user = result.user;
-//             userName = user.displayName
-//             email = user.email
-//             console.log('Logged in successfully')
-//             console.log(userName)
-//             console.log(email)
-//             console.log(user)
-//             getPost()
-//         }).catch(function (error) {
-//             // Handle Errors here.
-//             var errorCode = error.code;
-//             var errorMessage = error.message;
-//             console.log(errorCode, errorMessage)
-//         });
-// }
+    // Get a key for a new Post.
+    var newPostKey = firebase.database().ref().child('reviews').push().key;
 
-// var database = firebase.database();
+    // Write the new post's data simultaneously in the posts list and the user's post list.
+    var updates = {};
+    updates['/reviews/' + newPostKey] = postData;
+    // updates['/user-posts/' + newPostKey] = postData;
 
-// function writeNewPost() {
+    firebase.database().ref().update(updates);
 
-//     let message = document.getElementById('message').value
-//     console.log(message)
+    getPost();
+}
 
-//     // A post entry.
-//     var postData = {
-//         author: userName,
-//         body: message,
-//         date: new Date().toISOString()
-//     };
-
-//     // Get a key for a new Post.
-//     var newPostKey = firebase.database().ref().child('posts').push().key;
-
-//     // Write the new post's data simultaneously in the posts list and the user's post list.
-//     var updates = {};
-//     updates['/posts/' + newPostKey] = postData;
-//     // updates['/user-posts/' + newPostKey] = postData;
-
-//     return firebase.database().ref().update(updates);
-// }
-
-// function getPost() {
-//     let chatBox = document.getElementById('posts')
-//     firebase.database().ref('posts/').on('value', function (result) {
-//         console.log(result.val())
-//         let allPost = result.val();
-//         let template = '';
-//         for (key in allPost) {
-//             console.log(allPost[key].author)
-//             let author = allPost[key].author
-//             let message = allPost[key].body
-//             let date = allPost[key].date
-//             template += `<div>
-//                             <p>${author}</p>
-//                             <p>${message}</p>
-//                             <p>${date}</p>
-//                         </div>`
-//         }
-//         chatBox.innerHTML = template
-//     });
-// }
+function getPost() {
+    //let chatBox = document.getElementById('posts')
+    firebase.database().ref('reviews/').on('value', function (result) {
+        console.log(result.val())
+        let allPost = result.val();
+        let template = '';
+        for (key in allPost) {
+            console.log(allPost[key].author)
+            let author = allPost[key].author
+            let message = allPost[key].body
+            let date = allPost[key].date
+            template += `<div>
+                            <p>${author}</p>
+                            <p>${message}</p>
+                            <p>${date}</p>
+                        </div>`
+        }
+    });
+}
